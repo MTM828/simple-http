@@ -1,0 +1,22 @@
+# Python cache, in case the server has run the interpreter before
+__pycache__/
+*.pyc
+
+# Python virtualenv folder
+env/
+
+# File backups
+*.bak
+*.BAK
+
+# Core dumps
+*.core
+
+# Object files
+*.o
+
+# Log files
+*.log
+
+# Don't use .gitkeep files to upload empty folders, the Makefile does everything for you.
+.gitkeep
