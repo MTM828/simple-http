@@ -5,7 +5,7 @@ BIN_DIR ?= bin/
 
 EXEC_NAME ?= server
 TARGET_EXEC ?= $(BIN_DIR)$(EXEC_NAME)
-PREFIX ?= /usr/local/bin
+PREFIX ?= /usr/local/bin/
 
 CFLAGS = -c -g -I$(INC_DIR) -I$(SRC) -Wall -O0
 
@@ -28,7 +28,7 @@ endif
 endif
 
 LDLIBS = -lm
-LDFLAGS = -o bin/server -g
+LDFLAGS = -o $(TARGET_EXEC) -g
 
 ifeq ($(NO_PYTHON),)
 LDFLAGS += `python3-config --ldflags --embed`
@@ -50,11 +50,11 @@ LDFLAGS += $(LDLIBS)
 
 default:
 	mkdir -p tmp bin
-	$(CC) src/main.c $(CFLAGS) -o tmp/main.o
-	$(CC) src/ansi-colors.c $(CFLAGS) -o tmp/ansi-colors.o
-	$(CC) src/util.c $(CFLAGS) -o tmp/util.o
-	$(CC) src/log.c $(CFLAGS) -o tmp/log.o
-	$(CC) tmp/*.o $(LDFLAGS)
+	$(CC) $(SRC_DIR)main.c $(CFLAGS) -o $(OBJ_DIR)main.o
+	$(CC) $(SRC_DIR)ansi-colors.c $(CFLAGS) -o $(OBJ_DIR)ansi-colors.o
+	$(CC) $(SRC_DIR)util.c $(CFLAGS) -o $(OBJ_DIR)util.o
+	$(CC) $(SRC_DIR)log.c $(CFLAGS) -o $(OBJ_DIR)log.o
+	$(CC) $(OBJ_DIR)*.o $(LDFLAGS)
 
 install:
 	cp $(TARGET_EXEC) $(PREFIX)$(EXEC_NAME)

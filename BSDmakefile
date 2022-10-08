@@ -5,6 +5,7 @@ BIN_DIR ?= bin/
 
 EXEC_NAME ?= server
 TARGET_EXEC ?= $(BIN_DIR)$(EXEC_NAME)
+PREFIX ?= /usr/local/bin/
 
 CFLAGS = -c -g -I$(INC_DIR) -I$(SRC_DIR) -Wall -O0
 
@@ -27,7 +28,7 @@ CFLAGS += -D PHP_USE_EMBED=1\
 .endif
 
 LDLIBS = -lm
-LDFLAGS = -o bin/server -g
+LDFLAGS = -o $(TAGET_EXEC) -g
 
 .ifndef NO_PYTHON
 LDFLAGS += `python3-config --ldflags --embed`
@@ -53,7 +54,7 @@ default:
 	$(CC) $(SRC_DIR)ansi-colors.c $(CFLAGS) -o $(OBJ_DIR)ansi-colors.o
 	$(CC) $(SRC_DIR)util.c $(CFLAGS) -o $(OBJ_DIR)util.o
 	$(CC) $(SRC_DIR)log.c $(CFLAGS) -o $(OBJ_DIR)log.o
-	$(CC) $(OBJ_DIR)*.o $(LDFLAGS) -o $(TARGET_EXEC)
+	$(CC) $(OBJ_DIR)*.o $(LDFLAGS)
 
 install:
 	cp $(TARGET_EXEC) $(PREFIX)$(EXEC_NAME)
