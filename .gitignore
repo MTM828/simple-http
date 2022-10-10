@@ -8,6 +8,14 @@ env/
 # File backups
 *.bak
 *.BAK
+*.save
+
+# Binaries
+bin/
+*.out
+
+# Anything temporary used in tmp/
+tmp/
 
 # Core dumps
 *.core
