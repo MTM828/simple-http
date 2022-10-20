@@ -28,6 +28,9 @@ Be careful, though. If an error occurs in the script, it could leak sensitive in
  * (MTM828)[https://github.com/MTM828]: Original author of SimpleHTTP.
  * (KapitanOczywisty)[https://github.com/KapitanOczywisty">KapitanOczywisty]: Since the PHP SAPI isn't documented, using it has been a daunting task. I couldn't have done it without the aid of KapitanOczywisty, so thanks to him!
 
+## Server/Website Tutorial
+See `server-tutorial.md` to learn how to set up a website.
+
 ## Contributions are welcome!
 There are many things you can do to help:
 - Enter input for more `$_SERVER` indices
