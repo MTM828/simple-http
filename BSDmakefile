@@ -28,7 +28,7 @@ CFLAGS += -D PHP_USE_EMBED=1\
 .endif
 
 LDLIBS = -lm
-LDFLAGS = -o $(TAGET_EXEC) -g
+LDFLAGS = -o $(TARGET_EXEC) -g
 
 .ifndef NO_PYTHON
 LDFLAGS += `python3-config --ldflags --embed`
