@@ -10,14 +10,14 @@ If the user tries to access a folder, they'll get a 404 (until I add directory l
 A valid option for the server root would be `/srv/http/WEBSITE_NAME`, but since you shouldn't be running the server as root anyway since that would cause a security risk, `/var/www/WEBSITE_NAME` is what you should chose. But it doesn't make much of a difference.
 
 Start the server via `server` after doing an installation with whatever command-line options you would like to use.
-Once starting the server, your webpages can be accessed via `localhos:<PORT_NAME>`, the user uses port `8080` by default, but `80` is the default in HTTP, you can change the default port via the `-p` command-line option.
+Once starting the server, your webpages can be accessed via `localhost:<PORT_NAME>`, the server uses port `8080` by default, but `80` is the default in HTTP, you can change the default port via the `-p` command-line option.
 
 A web app is normally composed of:
 - A main server-side language or HTML for the pages (PHP/HTML)
 - A language for the database (can be the same as the main language) (Python, PHP, Java, etc.)
 - Database software (MySQL, MariaDB, etc.)
 
-So the homepage could be `index.php` (in the serve root).
+The home page for your website could be `index.php` (in the serve root).
 CSS can be stored in `assets/css`, JS could be stored in `assets/scripts`, images could be stored in `assets/images`, etc. Though user-generated images like their avatar should be stored in somewhere such as `db/avatars/USERNAME.jpg/jpeg/whatever` rather than in the site's `assets` folder.
 
 If the database software is MySQL, then install MySQL on your system, do a secure installation and set up your database users.

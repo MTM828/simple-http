@@ -1,8 +1,8 @@
 # SimpleHTTP
-A small Linux/BSD HTTP server that can serve static files (HTML, TXT, etc.) and server-generated web pages from Python/PHP.
+A small Linux/BSD HTTP server that can serve static files (HTML, TXT, etc.) and server-generated webpages from Python/PHP.
 **Usage:**
 ``` bash
-./server -p <port> -r <server root>
+./server -p <PORT_NAME> -r <SERVER_ROOT>
 ```
 
 ## Building From Source
