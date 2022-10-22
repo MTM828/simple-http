@@ -28,7 +28,7 @@ CFLAGS += -D PHP_USE_EMBED=1\
 .endif
 
 LDLIBS = -lm
-LDFLAGS = -o $(TARGET_EXEC) -g
+LDFLAGS = -g
 
 .ifndef NO_PYTHON
 LDFLAGS += `python3-config --ldflags --embed`
@@ -48,13 +48,36 @@ CFLAGS += -D NO_PHP=1
 
 LDFLAGS += $(LDLIBS)
 
-default:
-	mkdir -p $(OBJ_DIR) $(BIN_DIR)
+.PHONY: default all install uninstall clean
+
+default: $(TARGET_EXEC)
+
+all: $(TARGET_EXEC)
+
+$(TARGET_EXEC): $(OBJ_DIR) $(BIN_DIR) \
+	$(OBJ_DIR)main.o \
+	$(OBJ_DIR)ansi-colors.o \
+	$(OBJ_DIR)util.o \
+	$(OBJ_DIR)log.o
+	$(CC) $(OBJ_DIR)*.o $(LDFLAGS) -o $(TARGET_EXEC)
+
+$(OBJ_DIR):
+	mkdir -p $(OBJ_DIR)
+
+$(BIN_DIR):
+	mkdir -p $(BIN_DIR)
+
+$(OBJ_DIR)main.o: $(SRC_DIR)main.c
 	$(CC) $(SRC_DIR)main.c $(CFLAGS) -o $(OBJ_DIR)main.o
+
+$(OBJ_DIR)ansi-colors.o: $(SRC_DIR)ansi-colors.c
 	$(CC) $(SRC_DIR)ansi-colors.c $(CFLAGS) -o $(OBJ_DIR)ansi-colors.o
+
+$(OBJ_DIR)util.o: $(SRC_DIR)util.c
 	$(CC) $(SRC_DIR)util.c $(CFLAGS) -o $(OBJ_DIR)util.o
+
+$(OBJ_DIR)log.o: $(SRC_DIR)log.c
 	$(CC) $(SRC_DIR)log.c $(CFLAGS) -o $(OBJ_DIR)log.o
-	$(CC) $(OBJ_DIR)*.o $(LDFLAGS)
 
 install:
 	cp $(TARGET_EXEC) $(PREFIX)$(EXEC_NAME)
