@@ -151,7 +151,7 @@ int main(int argc, char *argv[]) {
 	PyRun_SimpleString("import sys");
 #endif
 	start_server(PORT);
-	printf("Server started at port %s%s%s with root directory as %s%s%s\n\n", ansi.green, PORT, ansi.reset, ansi.green, ROOT, ansi.reset);
+	printf("Server listening on port %s%s%s with root directory as %s%s%s\n\n", ansi.green, PORT, ansi.reset, ansi.green, ROOT, ansi.reset);
 
 	// Create cache folder if it doesn't exist
 	struct stat	st = {0};
