@@ -496,6 +496,7 @@ void respond(int n, int argc, char **argv) {
 						// Download file without knowing what it is
 						content_type = "Content-Disposition:attachment\n\n";
 					}
+					write(clients[n], "HTTP/1.0 200 OK\n", strlen("HTTP/1.0 200 OK\n"));
 					write(clients[n], content_type, strlen(content_type));
 					while ((bytes_read = read(fd, data_to_send, BYTES)) > 0) {
 						write(clients[n], data_to_send, bytes_read);
