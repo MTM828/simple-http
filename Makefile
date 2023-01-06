@@ -9,48 +9,48 @@ PREFIX ?= /usr/local/bin/
 
 CFLAGS = -c -g -I$(INC_DIR) -I$(SRC_DIR) -Wall -O0
 
-.if SINGLE_PROC
-CFLAGS += -D SINGLE_PROC=1
-.endif
+ifeq ($(SINGLE_PROC),1)
+CFLAGS += -D SINGLE_PROC
+endif
 
-.ifndef NO_PYTHON
+ifeq ($(NO_PYTHON),)
 CFLAGS += `python3-config --cflags --embed`
-.endif
+endif
 
-.ifndef NO_PHP
-.if PHP_USE_EMBED
+ifeq ($(NO_PHP),)
+ifeq ($(PHP_USE_EMBED),1)
 CFLAGS += -D PHP_USE_EMBED=1\
 	-I /usr/local/include/php/ \
 	-I /usr/local/include/php/main/ \
 	-I /usr/local/include/php/Zend/ \
 	-I /usr/local/include/php/TSRM/
-.endif
-.endif
+endif
+endif
 
 LDLIBS = -lm
 LDFLAGS = -g
 
-.ifndef NO_PYTHON
+ifeq ($(NO_PYTHON),)
 LDFLAGS += `python3-config --ldflags --embed`
-.endif
-.if NO_PYTHON
-CFLAGS += -D NO_PYTHON=1
-.endif
+endif
+ifeq ($(NO_PYTHON),1)
+CFLAGS += -D NO_PYTHON
+endif
 
-.ifndef NO_PHP
-.if PHP_USE_EMBED
+ifeq ($(NO_PHP),)
+ifeq ($(PHP_USE_EMBED),1)
 LDLIBS += -lphp
-.endif
-.endif
-.if NO_PHP
-CFLAGS += -D NO_PHP=1
-.endif
+endif
+endif
+ifeq ($(NO_PHP),1)
+CFLAGS += -D NO_PHP
+endif
 
 LDFLAGS += $(LDLIBS)
 
 .PHONY: default all install uninstall clean
 
-default: $(TARGET_EXEC)
+default: clean $(TARGET_EXEC)
 
 all: $(TARGET_EXEC)
 
@@ -58,7 +58,8 @@ $(TARGET_EXEC): $(OBJ_DIR) $(BIN_DIR) \
 	$(OBJ_DIR)main.o \
 	$(OBJ_DIR)ansi-colors.o \
 	$(OBJ_DIR)util.o \
-	$(OBJ_DIR)log.o
+	$(OBJ_DIR)log.o \
+	$(OBJ_DIR)exec-py.o
 	$(CC) $(OBJ_DIR)*.o $(LDFLAGS) -o $(TARGET_EXEC)
 
 $(OBJ_DIR):
@@ -68,7 +69,7 @@ $(BIN_DIR):
 	mkdir -p $(BIN_DIR)
 
 $(OBJ_DIR)%.o: $(SRC_DIR)%.c
-	$(CC) $(SRC_DIR)%.c $(CFLAGS) -o $(OBJ_DIR)%.o
+	$(CC) $< $(CFLAGS) -o $@
 
 install:
 	cp $(TARGET_EXEC) $(PREFIX)$(EXEC_NAME)
@@ -77,4 +78,4 @@ uninstall:
 	rm $(PREFIX)$(EXEC_NAME)
 
 clean:
-	rm $(OBJ_DIR)*.o
+	rm -f $(OBJ_DIR)*.o

@@ -1,7 +1,8 @@
 #ifndef NO_PYTHON
-#define PY_SSIZE_T_CLEAN
+/*#define PY_SSIZE_T_CLEAN
 #include <Python.h>
-#include <frameobject.h>
+#include <frameobject.h>*/
+#include "exec-py.h"
 #endif
 
 #ifndef NO_PHP
@@ -49,6 +50,12 @@
 
 #define BYTES 1024
 
+bool is_file(char *path) {
+    struct stat path_stat;
+    stat(path, &path_stat);
+    return S_ISREG(path_stat.st_mode);
+}
+
 char *ROOT;
 int listenfd, clients[CONNMAX];
 void error(char *);
@@ -57,9 +64,9 @@ void respond(int, int, char **);
 
 void interrupt_handler() {
 	printf(" %sExiting after interrupt...%s\n", ansi.green, ansi.reset);
-#ifndef NO_PYTHON
+/*#ifndef NO_PYTHON
 	Py_Finalize();
-#endif
+#endif*/
 	exit(0);
 }
 
@@ -145,11 +152,11 @@ int main(int argc, char *argv[]) {
 	for (i = 0; i < CONNMAX; i++) {
 		clients[i] = -1;
 	}
-#ifndef NO_PYTHON
+/*#ifndef NO_PYTHON
 	// Initialize the Python interpreter
 	Py_Initialize();
 	PyRun_SimpleString("import sys");
-#endif
+#endif*/
 	start_server(PORT);
 	printf("Server listening on port %s%s%s with root directory as %s%s%s\n\n", ansi.green, PORT, ansi.reset, ansi.green, ROOT, ansi.reset);
 
@@ -157,10 +164,11 @@ int main(int argc, char *argv[]) {
 	struct stat	st = {0};
 	if (stat("/var/cache/http-server", &st) == -1) {
 		mkdir("/var/cache/http-server", 0700);
-#ifndef NO_PYTHON
+/*#ifndef NO_PYTHON
 		PyRun_SimpleString("sys.pycache_prefix=\"/var/cache/http-server\"");
-#endif
+#endif*/
 	}
+	init_py();
 	while (true) {
 		addrlen = sizeof(clientaddr);
 		clients[slot] = accept(listenfd, (struct sockaddr *)&clientaddr, &addrlen);
@@ -249,8 +257,11 @@ bool try_index(char **path, char *index_file) {
 	if (access(new_path, F_OK) == 0) {
 		*path = (char *)malloc(strlen(new_path) + 1);
 		strcpy(*path, new_path);
+		free(path);
+		free(new_path);
 		return true;
 	} else {
+		free(new_path);
 		return false;
 	}
 }
@@ -284,14 +295,14 @@ void respond(int n, int argc, char **argv) {
 	const char *resp_404_header = "HTTP/1.0 404 Not Found\n\n";
 	const char *default_resp_404_page = "<html><body><center><b>404</b><p>Not Found</p></center></html></body>\n";
 
-	const char *resp_500_header = "HTTP/1.0 500 Internal Server Error\n\n";
-	const char *default_resp_500_page = "<html><body><center><b>500</b><p>Internal Server Error</p></center></html></body>\n";
+	//const char *resp_500_header = "HTTP/1.0 500 Internal Server Error\n\n";
+	//const char *default_resp_500_page = "<html><body><center><b>500</b><p>Internal Server Error</p></center></html></body>\n";
 
 	if (rcvd < 0) {
 		printf("%sERROR%s: recv(): %s\n", ansi.red, ansi.reset, strerror(errno));
 	} else if (rcvd == 0) {
 		log_error("recv()", "Client disconnected unexpectedly");
-	} else if (!strstr(reqline[1], "..")) {
+	} else if (/*!strstr(reqline[1], "..")*/1) {
 		reqline[0] = strtok(mesg, " \t\n");
 		reqline[1] = strtok(NULL, " \t");
 		reqline[2] = strtok(NULL, " \t\n");
@@ -342,65 +353,14 @@ void respond(int n, int argc, char **argv) {
 				 * ".py") != true) { } } } */
 			printf("Client accessed file: %s%s%s\n\n", ansi.blue, reqline[1], ansi.reset);
 
-			if ((fd = open(reqline[1], O_RDONLY)) != -1) {
+			if (is_file(reqline[1]) && (fd = open(reqline[1], O_RDONLY)) != -1) {
 				if (false) {}
 #ifndef NO_PYTHON
 				else if (str_ends_with(reqline[1], ".py")) {
-					char import_path[999] = "";
-					sprintf(import_path, "sys.path.append(\"%s\")", ROOT);
-					PyRun_SimpleString(import_path);
-					PyObject *page_module = PyImport_ImportModule(strtok(basename(reqline[1]), "."));
-					PyObject *type, *value, *traceback;
-					PyErr_Fetch(&type, &value, &traceback);
-					if (type != NULL) {
-						PyErr_Restore(type, value, traceback);
-						PyErr_Print();
-						printf("\n");
-						write(clients[n], resp_500_header, strlen(resp_500_header));
-						write(clients[n], default_resp_500_page, strlen(default_resp_500_page));
-						shutdown(clients[n], SHUT_RDWR);
-						close(clients[n]);
-						clients[n] = -1;
-						return;
-					}
-					PyObject *page_main_func = PyObject_GetAttrString(page_module, "http_main");
-					PyObject *page_url_params = PyDict_New();
-					PyObject *param = NULL;
-					char *param_name = "";
-					char *param_val = "";
-					for (int i = 0; i != url_params_count; ++i) {
-						param_name = strtok(url_params[i], "=");
-						param_val = strtok(NULL, "=");
-						param = Py_BuildValue("s", (const char *) param_val);
-						PyDict_SetItemString(page_url_params, param_name, param);
-					}
-					PyErr_Fetch(&type, &value, &traceback);
-					if (type != NULL) {
-						PyErr_Restore(type, value, traceback);
-						PyErr_Print();
-						write(clients[n], resp_500_header, strlen(resp_500_header));
-						write(clients[n], default_resp_500_page, strlen(default_resp_500_page));
-						shutdown(clients[n], SHUT_RDWR);
-						close(clients[n]);
-						clients[n] = -1;
-						return;
-					}
-					PyObject *result = PyObject_CallObject(page_main_func, Py_BuildValue("(sOs)", reqline[1], page_url_params, reqline[0]));
-					PyErr_Fetch(&type, &value, &traceback);
-					if (type != NULL) {
-						PyErr_Restore(type, value, traceback);
-						PyErr_Print();
-						printf("\n");
-						write(clients[n], resp_500_header, strlen(resp_500_header));
-						write(clients[n], default_resp_500_page, strlen(default_resp_500_page));
-					} else {
-						char *page_content = (char *) PyUnicode_AsUTF8(result);
-						write(clients[n], resp_200_header, strlen(resp_200_header));
-						write(clients[n], page_content, strlen(page_content));
-					}
+					char *page_content = exec_py(reqline[1], ROOT, reqline[0], url_params, url_params_count);
+					write(clients[n], page_content, strlen(page_content));
 				}
 #endif
-
 #ifndef NO_PHP
 				else if (str_ends_with(reqline[1], ".php")) {
 					// PHP $_SERVER indices, incomplete
