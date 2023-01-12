@@ -25,8 +25,8 @@ Though PHP is not *fully* supported yet, the server can run PHP scripts.
 Be careful, though. If an error occurs in the script, it could leak sensitive information (that's intended for debbugging use), instead of returning Error 500.
 
 ## Credits
- * (MTM828)[https://github.com/MTM828]: Original author of SimpleHTTP.
- * (KapitanOczywisty)[https://github.com/KapitanOczywisty">KapitanOczywisty]: Since the PHP SAPI isn't documented, using it has been a daunting task. I couldn't have done it without the aid of KapitanOczywisty, so thanks to him!
+ * [MTM828](https://github.com/MTM828): Original author of SimpleHTTP.
+ * [KapitanOczywisty](https://github.com/KapitanOczywisty): Since the PHP SAPI isn't documented, using it has been a daunting task. I couldn't have done it without the aid of KapitanOczywisty, so thanks to him!
 
 ## Server/Website Tutorial
 See `server-tutorial.md` to learn how to set up a website.
@@ -34,9 +34,6 @@ See `server-tutorial.md` to learn how to set up a website.
 ## Contributions are welcome!
 There are many things you can do to help:
 - Enter input for more `$_SERVER` indices
-- Run in background as a service/thread/whatever, I've never done such thing before.
-- I haven't looked into security yet. I believe software like Nikto can help, but I haven't tried it yet.
-- Clean up the code
-- Support for other operating systems/compilers/make systems
-- Documentation
-- Add directory listing/file guessing
+- Option to run in background as a service/thread/whatever.
+- I haven't looked into security yet. I believe software like Nikto can help.
+- Add directory listing or file guessing
